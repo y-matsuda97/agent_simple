@@ -48,10 +48,16 @@ def get_input_for_variable(var_name, folder_mapping, include_ignore=False):
             "例えば '@ main.py utils/helper.py' のように入力すると、まず additional_code_info が挿入され、\n"
             "さらに 'main.py' と 'utils/helper.py' のコードも続けて読み込まれます。\n"
             "単にファイルを指定したい場合は '@' を入れずに 'main.py utils/helper.py' のように入力してください。\n"
+            "ファイル名は空白または改行で区切って入力できます。空行で入力終了です。\n"
         )
         
         # ユーザーからの入力受付
-        file_specs = input("空白で区切ってファイル名やフォルダ名を入力してください: ").split()
+        file_specs = []
+        while True:
+            line = input().strip()
+            if not line:  # 空行で終了
+                break
+            file_specs.extend(line.split())
 
         # 「@」を含むファイル指定があるかどうかを判定
         if any('@' in spec for spec in file_specs):
@@ -115,7 +121,7 @@ def create_input_prompt(folder_mapping=('src', '/app'), include_ignore=False):
     """プロンプトファイルから入力を生成する関数"""
     prompts = {
         "1": ("review_prompt", "コードレビュー"),
-        "2": ("revise_prompt", "コード修正"),
+        "2": ("revise_prompt", "コード修正・作成"),
         "3": ("error_prompt", "エラー解析"),
         "4": ("ask_prompt", "コードについての質問"),
         "5": ("code_prompt", "コードのみの提示"),
@@ -303,7 +309,7 @@ review_prompt = """# 指示
 """
 
 revise_prompt = """# 指示
-修正指示に従い、コードを修正または追加してください。
+コード修正・作成指示に従い、コードを修正または作成してください。
 
 # 制約条件
 なるべく簡潔に
@@ -311,7 +317,7 @@ revise_prompt = """# 指示
 必要な追加ファイルがあれば、フルパスを**半角スペース区切り1行**で出力すること
 追加ファイルの要望があった場合、私からファイルを提供するため、その後に指示の続きを遂行すること
 
-# 修正指示
+# コード修正・作成指示
 {input}
 
 {directory_structure}
@@ -321,7 +327,7 @@ revise_prompt = """# 指示
 """
 
 error_prompt = """# 指示
-これから添付コードとエラー文を解析し，解決方法を挙げてください。
+これから添付コードとエラー内容を解析し，解決方法を挙げてください。
 
 # 制約条件
 エラーの原因について示すこと
@@ -331,7 +337,7 @@ error_prompt = """# 指示
 必要な追加ファイルがあれば、フルパスを**半角スペース区切り1行**で出力すること
 追加ファイルの要望があった場合、私からファイルを提供するため、その後に指示の続きを遂行すること
 
-# エラー文
+# エラー内容
 {error}
 
 {directory_structure}
@@ -415,13 +421,14 @@ if __name__ == "__main__":
 #      （例：main.py や utils/helper.py など）
 #      「@」を含めて入力することで additional_code_info が先頭に入ります。
 #      例）"@ main.py utils/helper.py" → additional_code_info のあと、main.py と utils/helper.py のコードを続けて出力。
+#      ファイル名は空白または改行で区切って入力でき、空行で入力終了です。
 #    - {error} や {input} では複数行を入力したい場合は、""" で囲んで入力し、最後にも """ を入力して終了します。
 #    - {directory_structure} ではディレクトリ構造を出力するかどうか、もしくは特定パスを指定するか選択します。
 #
 # 4. 入力が完了すると、最終的に生成されたプロンプト文字列が"agent_simple/.aa_prompt.txt"に書き込まれます。
 #
 # 5. もし「ファイルが見つからない」旨が表示された場合、指定パスやファイル名が正しいかご確認ください。
-#    特に複数ファイルを指定する際はスペース区切りで入力し、相対パス指定が正しいか注意してください。
+#    特に複数ファイルを指定する際はスペースまたは改行で区切って入力し、相対パス指定が正しいか注意してください。
 #
 # 【コマンド実行例】
 #   python main.py --old_folder src --new_folder ../my_app --include_ignore
