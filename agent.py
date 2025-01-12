@@ -41,19 +41,43 @@ def get_required_variables(prompt_template):
 def get_input_for_variable(var_name, folder_mapping, include_ignore=False):
     """各変数に対してユーザ入力を取得する関数"""
     if var_name == "code":
+        # ここで追加メッセージを表示
+        print(
+            "【ヒント】\n"
+            "ファイル名やフォルダ名の入力に '@' を含めると、先頭に追加メッセージ (additional_code_info) が入ります。\n"
+            "例えば '@ main.py utils/helper.py' のように入力すると、まず additional_code_info が挿入され、\n"
+            "さらに 'main.py' と 'utils/helper.py' のコードも続けて読み込まれます。\n"
+            "単にファイルを指定したい場合は '@' を入れずに 'main.py utils/helper.py' のように入力してください。\n"
+        )
+        
+        # ユーザーからの入力受付
         file_specs = input("空白で区切ってファイル名やフォルダ名を入力してください: ").split()
+
+        # 「@」を含むファイル指定があるかどうかを判定
         if any('@' in spec for spec in file_specs):
+            # '@'が含まれていた場合は additional_code_info を先頭に追加
             code_content = additional_code_info + "\n\n"
-            if len(file_specs) > 1:  # @以外のファイル指定がある場合
-                code_content += read_code_as_markdown([spec for spec in file_specs if '@' not in spec], folder_mapping=folder_mapping)
+            
+            # @ 以外にファイル指定があれば、それらのコードをMarkdown形式で追加
+            if len([spec for spec in file_specs if '@' not in spec]) > 0:
+                code_content += read_code_as_markdown(
+                    [spec for spec in file_specs if '@' not in spec],
+                    folder_mapping=folder_mapping
+                )
             return code_content
-        return read_code_as_markdown(file_list=file_specs, folder_mapping=folder_mapping)
+        else:
+            # '@' なしの場合は通常通りファイルをMarkdown形式で追加
+            return read_code_as_markdown(
+                file_list=file_specs,
+                folder_mapping=folder_mapping
+            )
+
     elif var_name in ["input", "error"]:
         return get_multiline_input(f"{var_name}を入力してください。複数行の場合は\"\"\"で開始し、\"\"\"で終了してください:")
     elif var_name == "directory_structure":
         include_dir = input("ディレクトリ構造を追加しますか？ y(default)/n/specific path: ") or 'y'
         if include_dir.lower() == 'y':
-            dir_path = folder_mapping[0]
+            dir_path = folder_mapping[0] 
             return list_directory_structure(dir_path, folder_mapping=folder_mapping, include_ignore=include_ignore)
         elif include_dir and include_dir.lower() != 'n':
             return list_directory_structure(include_dir, folder_mapping=folder_mapping, include_ignore=include_ignore)
@@ -126,7 +150,7 @@ def is_ignored(path, ignore_patterns, new_folder):
         else:
             if relative_path == pattern:
                 return True
-
+    
     return False
 
 def get_directory_structure(new_folder, ignore_patterns):
@@ -219,7 +243,7 @@ def read_code_as_markdown(file_list: list, folder_mapping=('src', '/app')):
                     title=f"File {os.path.basename(f)}",
                     code=code,
                 )
-
+    
     if not_found_files:
         not_found_files_str = "\n".join(not_found_files)
         markdown_content = prompt_templates["not_found_files_prompt"].replace("{not_found_files}", not_found_files_str) + markdown_content
@@ -244,7 +268,7 @@ def add_markdown_block(markdown_content, title, code):
 
 review_prompt = """# 指示
 1. これから添付するコードを解説してください。
-2. コードをレビューし、懸念点と修正案を提示しなください。
+2. コードをレビューし、懸念点と修正案を提示してください。
 3. このコードが正しく動作することをチェックするテストコードを記述してください。
 
 # 解説の制約条件
@@ -353,43 +377,60 @@ prompt_templates = {
 if __name__ == "__main__":
     import argparse
     parser = argparse.ArgumentParser(description='Create input prompt')
-    parser.add_argument('--old_folder', type=str, default='src', help='Old folder name to be replaced')
-    parser.add_argument('--new_folder', type=str, default='/app', help='New folder name to replace with')
+    parser.add_argument('--old_folder', type=str, default="src", help='Old folder name to be replaced')
+    parser.add_argument('--new_folder', type=str, default=os.path.dirname(os.path.dirname(__file__)), help='New folder name to replace with')
     parser.add_argument('--include_ignore', action='store_true', help='Whether to use .gitignore and .dirignore')
     args = parser.parse_args()
     try:
         result = create_input_prompt(folder_mapping=(args.old_folder, args.new_folder), include_ignore=args.include_ignore)
-        with open(".aa_prompt.txt", "w", encoding="utf-8", errors='ignore') as f:
+        with open(os.path.join(args.new_folder, "agent_simple/.aa_prompt.txt"), "w", encoding="utf-8", errors='ignore') as f:
             f.write(result)
         print("\nプロンプトが.aa_prompt.txtに保存されました。")
     except Exception as e:
         print(f"Error: {e}")
 
-
-# --- 使い方 ---
-# このスクリプトは、指定したディレクトリ内のコードや構造を基に、プロンプトを生成するツールです。
-# プロンプトはコードレビューや修正指示、エラー解析などに役立ちます。
-# 実行後、生成されたプロンプトは作業ディレクトリの `.aa_prompt.txt` に保存されます。
-
-# --- 引数オプション ---
-# --old_folder:
-#     処理対象の「元のディレクトリ名」を指定します。デフォルト値は `src`。
-# --new_folder:
-#     処理対象の「新しいディレクトリ名」を指定します。デフォルト値は `/app`。
-# --include_ignore:
-#     `.gitignore` や `.dirignore` の無視ルールを適用します。フラグオプション。
-
-# --- 使い方例 ---
-# 1. デフォルト設定で実行する場合:
-#    python your_script.py
+# --------------------------------------------------------------------------------------------------
+# 使い方（Usage）
 #
-# 2. `src` の親ディレクトリを解析し、パスを `/workspace` に変換する場合:
-#    python your_script.py --old_folder . --new_folder /workspace
+# 【概要】
+# このスクリプトは対話形式で「コードレビュー・エラー解析・質問」などのプロンプトテンプレートを選び、
+# 必要な変数（コードやエラー文など）を埋め込んだテキストファイル（.aa_prompt.txt）を出力するためのものです。
+# 
+# 【手順】
+# 1. コマンドラインから本スクリプトを実行します。
+#    例）python main.py --old_folder src --new_folder ../app
+#      - --old_folder で変換前のトップフォルダ名を指定（デフォルトは"src"）。
+#      - --new_folder で変換後のトップフォルダ名を相対パスで指定（デフォルトは本スクリプトの１つ上のディレクトリ）。
+#      - --include_ignore フラグを付けると.gitignoreや.dirignoreのパターンに従い、表示／取得から除外されます。
 #
-# 3. `.gitignore` の設定を考慮して解析する場合:
-#    python your_script.py --include_ignore
+# 2. プロンプトの番号を入力（1〜5）して、利用したいテンプレートを選択します。
+#    - 1: コードレビュー
+#    - 2: コード修正
+#    - 3: エラー解析
+#    - 4: コードへの質問
+#    - 5: コードのみの提示
 #
-# --- 実行後 ---
-# 生成されたプロンプトは `.aa_prompt.txt` に保存されます。
-# このファイルを開いて内容を確認してください。
-# プロンプトには解析対象のコードやディレクトリ構造に基づく指示が記述されています。
+# 3. 選んだテンプレートに応じて必要な変数（{code}, {error}, {input}, {directory_structure}など）を対話形式で入力します。
+#    - {code} 入力の際は、読み込みたいファイルやフォルダを相対パスで指定してください。
+#      （例：main.py や utils/helper.py など）
+#      「@」を含めて入力することで additional_code_info が先頭に入ります。
+#      例）"@ main.py utils/helper.py" → additional_code_info のあと、main.py と utils/helper.py のコードを続けて出力。
+#    - {error} や {input} では複数行を入力したい場合は、""" で囲んで入力し、最後にも """ を入力して終了します。
+#    - {directory_structure} ではディレクトリ構造を出力するかどうか、もしくは特定パスを指定するか選択します。
+#
+# 4. 入力が完了すると、最終的に生成されたプロンプト文字列が"agent_simple/.aa_prompt.txt"に書き込まれます。
+#
+# 5. もし「ファイルが見つからない」旨が表示された場合、指定パスやファイル名が正しいかご確認ください。
+#    特に複数ファイルを指定する際はスペース区切りで入力し、相対パス指定が正しいか注意してください。
+#
+# 【コマンド実行例】
+#   python main.py --old_folder src --new_folder ../my_app --include_ignore
+#
+#  上記の例では、 src → ../my_app ディレクトリに置換し、
+#  .gitignore と .dirignore に基づく無視リストを考慮してディレクトリ構造を確認します。
+#
+# 【出力】
+#  ・対話形式で入力・処理した結果が、"--new_folder" で指定した場所の "agent_simple/.aa_prompt.txt" に保存されます。
+#  ・例えば "--new_folder ../my_app" の場合は、"../my_app/agent_simple/.aa_prompt.txt" に出力されます。
+#
+# --------------------------------------------------------------------------------------------------

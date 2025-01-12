@@ -1,0 +1,640 @@
+# 指示
+1. これから添付するコードを解説してください。
+2. コードをレビューし、懸念点と修正案を提示してください。
+3. このコードが正しく動作することをチェックするテストコードを記述してください。
+
+# 解説の制約条件
+わかりやすく
+データの流れがわかるように上から順に1行ずつ説明
+具体的に値を代入したときの挙動を具体例とともに説明する
+引数についても説明する
+必要な追加ファイルがあれば、フルパスを**半角スペース区切り1行**で出力すること
+追加ファイルの要望があった場合、私からファイルを提供するため、その後に指示の続きを遂行すること
+コード中で不適当な記述があれば指摘する
+
+# レビューの制約条件
+1関数1機能になるように注意する
+まとめられる関数はまとめる
+簡潔でわかりやすいコードになるように提案
+説明する際は具体例を示して
+必要に応じてドキュメントを検索して情報を入手する
+必要な追加ファイルがあれば、フルパスを**半角スペース区切り1行**で出力すること
+追加ファイルの要望があった場合、私からファイルを提供するため、その後に指示の続きを遂行すること
+
+# テストコードの制約条件
+修正前のコードをテスト対象とすること
+レビュー指摘事項を確認するテストを追加すること
+問題が判明した場合は原因も報告すること
+必要な追加ファイルがあれば、フルパスを**半角スペース区切り1行**で出力すること
+追加ファイルの要望があった場合、私からファイルを提供するため、その後に指示の続きを遂行すること
+
+app/
+    composer.lock
+    package-lock.json
+    README.md
+    .dirignore
+    artisan
+    package.json
+    composer.json
+    .gitattributes
+    vite.config.js
+    tailwind.config.js
+    .editorconfig
+    postcss.config.js
+    phpunit.xml
+    resources/
+        lang/
+            ja/
+                passwords.php
+        js/
+            app.js
+            bootstrap.js
+            components/
+        images/
+            user_images/
+                icon_user1.webp
+                icon_default.webp
+                icon_sample3.webp
+                icon_sample4.webp
+                icon_sample2.webp
+                icon_sample5.webp
+                profile_sample1.webp
+            article_images/
+                sample3.webp
+                sample2.webp
+                sample1.webp
+            admin_images/
+                header2.webp
+                crown1.webp
+                crown3.webp
+                crown2.webp
+                logo.webp
+                header1.webp
+        css/
+            app.css
+        views/
+            template-footer.blade.php
+            dashboard.blade.php
+            post01.blade.php
+            ranking.blade.php
+            post02.blade.php
+            home.blade.php
+            template-header.blade.php
+            post03.blade.php
+            ranking-detail.blade.php
+            post04.blade.php
+            welcome.blade.php
+            mypage/
+                sales.blade.php
+                likes.blade.php
+                _sidebar.blade.php
+                mypage.blade.php
+                settings.blade.php
+                layout.blade.php
+                finance.blade.php
+                subscription.blade.php
+            auth/
+                register.blade.php
+                confirm_register.blade.php
+                forgot-password.blade.php
+                reset-password.blade.php
+                confirm-password.blade.php
+                pre_register.blade.php
+                login.blade.php
+                passwords/
+                email/
+                    reset-password.blade.php
+                    pre_register.blade.php
+    app/
+        Http/
+            Kernel.php
+            Controllers/
+                RankingController.php
+                HomeController.php
+                PostManagementController.php
+                PostController.php
+                Controller.php
+                ProfileController.php
+                Mypage/
+                    PostManagementController.php
+                    AccountSettingsController.php
+                    SalesReportController.php
+                    FinanceController.php
+                    MyPageController.php
+                    LikedPostController.php
+                    SubscriptionController.php
+                Auth/
+                    VerifyEmailController.php
+                    ConfirmablePasswordController.php
+                    EmailVerificationPromptController.php
+                    PasswordResetLinkController.php
+                    RegisteredUserController.php
+                    PasswordController.php
+                    AuthenticatedSessionController.php
+                    EmailVerificationNotificationController.php
+                    NewPasswordController.php
+            Middleware/
+                EnsureEmailIsVerified.php
+            Requests/
+                ProfileUpdateRequest.php
+                Auth/
+                    LoginRequest.php
+        Models/
+            Transaction.php
+            PerformanceHistory.php
+            Payment.php
+            Subscription.php
+            ArticleSale.php
+            Follow.php
+            BaseModel.php
+            ArticleCategory.php
+            Admin.php
+            Race.php
+            Notification.php
+            PaymentType.php
+            Article.php
+            Hashtag.php
+            User.php
+            SubscriptionType.php
+        Providers/
+            AppServiceProvider.php
+        Notifications/
+            ResetPassword.php
+        Console/
+            Commands/
+                CreatePerformanceSummaryView.php
+                Kernel.php
+        Mail/
+            EmailVerification.php
+    routes/
+        web.php
+        auth.php
+        console.php
+    database/
+        .gitignore
+        migrations/
+            2024_06_15_103634_create_comments_table.php
+            2024_10_08_150024_create_sessions_table.php
+            2024_06_15_103635_create_article_sales_table.php
+            2024_06_15_103633_create_ticket_purchases_table.php
+            2024_06_15_103632_create_two_factor_authentications_table.php
+            2024_08_24_065032_create_password_reset_tokens_table.php
+            2024_06_15_103632_create_social_authentications_table.php
+            2024_07_10_133134_create_article_category_relations_table.php
+            2024_06_15_103635_create_transactions_table.php
+            2024_06_15_103206_create_authentication_methods_table.php
+            2024_06_15_103635_create_payment_types_table.php
+            2024_06_15_103633_create_performance_histories_table.php
+            2024_06_15_103635_create_subscriptions_table.php
+            2024_07_14_124656_create_cache_table.php
+            2024_06_15_103634_create_likes_table.php
+            2024_06_15_103633_create_article_categories_table.php
+            2024_06_15_103634_create_follows_table.php
+            2024_06_15_103635_create_payments_table.php
+            2024_06_15_103634_create_notifications_table.php
+            2024_06_15_103633_create_hashtags_table.php
+            2024_06_15_103633_create_races_table.php
+            2024_06_15_103633_create_articles_table.php
+            2024_06_15_103634_create_subscription_types_table.php
+            2024_06_15_103158_create_users_table.php
+            2024_06_15_103634_create_bookmarks_table.php
+            2024_06_15_103632_create_bank_accounts_table.php
+            2024_06_15_103635_create_admins_table.php
+        seeders/
+            DatabaseSeeder.php
+            TestDataSeeder.php
+        factories/
+            UserFactory.php
+    tests/
+        TestCase.php
+        Pest.php
+        Unit/
+            ExampleTest.php
+        Feature/
+            ExampleTest.php
+            ProfileTest.php
+            Auth/
+                PasswordUpdateTest.php
+                PasswordConfirmationTest.php
+                EmailVerificationTest.php
+                RegistrationTest.php
+                PasswordResetTest.php
+                AuthenticationTest.php
+    bootstrap/
+        app.php
+        providers.php
+        cache/
+            packages.php
+            .gitignore
+            services.php
+    config/
+        app.php
+        mail.php
+        filesystems.php
+        captcha.php
+        auth.php
+        session.php
+        logging.php
+        database.php
+        services.php
+        queue.php
+        cache.php
+    public/
+        test.php
+        robots.txt
+        index.php
+        .htaccess
+        favicon.ico
+
+
+# 該当コード
+## File RankingController.php
+```
+<?php
+
+namespace App\Http\Controllers;
+
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+
+class RankingController extends Controller
+{
+    public function getRanking(Request $request)
+    {
+        $validated = $request->validate([
+            'sort_by' => 'in:recovery_rate,hit_rate,total_bets,follower_count', 
+        ]);
+
+        $sortBy = $validated['sort_by'] ?? 'recovery_rate';
+        $daily_ranking_info = $this->fetchRankingData('daily', $sortBy);
+        $weekly_ranking_info = $this->fetchRankingData('weekly', $sortBy);
+        $monthly_ranking_info = $this->fetchRankingData('monthly', $sortBy);
+
+        return view('ranking', compact('daily_ranking_info', 'weekly_ranking_info', 'monthly_ranking_info', 'sortBy'));
+    }
+
+    private function fetchRankingData($period, $sortBy)
+    {
+        $viewName = "{$period}_performance_summary_view";
+        $rankingData = $this->getRankingQuery($viewName, $sortBy)->get();
+
+        return $this->formatRankingData($rankingData, $viewName);
+    }
+
+    private function getRankingQuery($viewName, $sortBy)
+    {
+        return DB::table($viewName)
+            ->join('users', "{$viewName}.user_id", '=', 'users.UserID')
+            ->leftJoin('follows', 'users.UserID', '=', 'follows.FolloweeID')
+            ->select(
+                'users.UserID',
+                'users.name as username', 
+                DB::raw("CONCAT('/', users.IconImageURL) as icon_url"), 
+                DB::raw("CAST({$viewName}.recovery_rate AS UNSIGNED) as recovery_rate"),
+                DB::raw("CAST({$viewName}.hit_rate AS UNSIGNED) as hit_rate"),
+                "{$viewName}.total_bets",
+                DB::raw('COUNT(DISTINCT follows.FollowerID) as follower_count')
+            )
+            ->groupBy('users.UserID', 'users.name', 'users.IconImageURL', "{$viewName}.recovery_rate", "{$viewName}.hit_rate", "{$viewName}.total_bets")
+            ->orderBy($sortBy, 'desc')
+            ->orderBy('total_bets', 'desc')
+            ->take(3);
+    }
+
+    private function formatRankingData($rankingData, $viewName)
+    {
+        return $rankingData->map(function ($user) {
+            $articles = $this->getUserArticles($user->UserID);
+
+            return [
+                'username' => $user->username,
+                'icon_url' => $user->icon_url,
+                'recovery_rate' => $user->recovery_rate,
+                'hit_rate' => $user->hit_rate,
+                'total_bets' => $user->total_bets,
+                'follower_count' => $user->follower_count,
+                'articles' => $articles
+            ];
+        })->toArray();
+    }
+
+    private function getUserArticles($userId)
+    {
+        return DB::table('articles')
+            ->select('articles.ArticleID as article_id', 'articles.Title as article_title', 'articles.Price as price', 'articles.PublishedAt as creation_date', 'users.name as author', 'articles.TopImageURL', 'articles.UserID')
+            ->leftJoin('users', 'articles.UserID', '=', 'users.UserID')
+            ->where('articles.UserID', $userId)
+            ->where('articles.IsPublished', true)
+            ->orderBy('articles.PublishedAt', 'desc')
+            ->take(2)
+            ->get()
+            ->map(function ($article) {
+                return [
+                    'article_id' => $article->article_id,
+                    'article_title' => $article->article_title,
+                    'price' => $article->price,
+                    'creation_date' => $article->creation_date instanceof \DateTime ? $article->creation_date->format('Ymd') : $article->creation_date,
+                    'top_image_url' => $article->TopImageURL
+                ];
+            })
+            ->toArray();
+    }
+}
+
+```
+
+## File HomeController.php
+```
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\User;
+use App\Models\Article;
+use App\Models\Race;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
+
+class HomeController extends Controller
+{
+    public function index()
+    {
+        // ログイン状態と認証状態のチェック
+        if (Auth::check() && Auth::user()->hasVerifiedEmail()) {
+            $is_logged_in = true;
+        } else {
+            $is_logged_in = false;
+        }
+
+        // 注目レース情報
+        $focus_race_info = [
+            [
+                "race_title" => "JRA70周年記念 ラジオNIKKEI賞（GⅢ）",
+                "race_link" => "https://example.com/races/tokyo"
+            ]
+        ];
+
+        $header_image_1 = "/admin_images/header1";
+        $header_image_2 = "/admin_images/header2";
+
+        $ranking_info = $this->getRankingInfo();
+
+        $new_article_info = $this->getNewArticleInfo();
+
+        $recent_race_info = $this->getRecentRaceInfo();
+
+        // ログインユーザーのアイコン情報を追加
+        $userIcon = Auth::check() ? Auth::user()->IconImageURL : 'user_images/icon_default';
+
+        return view('home', compact(
+            'is_logged_in',
+            'focus_race_info',
+            'header_image_1',
+            'header_image_2',
+            'ranking_info',
+            'recent_race_info',
+            'new_article_info',
+            'userIcon'
+        ));
+    }
+
+    private function getRankingInfo()
+    {
+        return User::select(
+            DB::raw("COALESCE(users.IconImageURL, 'user_images/icon_default') as user_icon"),
+            'users.name as user_name', 
+            DB::raw('COUNT(follows.FollowerID) as followers'),
+            'daily_performance_summary_view.recovery_rate',
+            'daily_performance_summary_view.total_bets',
+            'daily_performance_summary_view.hit_rate',
+            'users.created_at'
+        )
+            ->leftJoin('follows', 'users.UserID', '=', 'follows.FollowerID')
+            ->leftJoin('daily_performance_summary_view', 'users.UserID', '=', 'daily_performance_summary_view.user_id')
+            ->groupBy(
+                'users.UserID', 
+                'users.IconImageURL', 
+                'users.name', 
+                'daily_performance_summary_view.recovery_rate',
+                'daily_performance_summary_view.total_bets',
+                'daily_performance_summary_view.hit_rate',
+                'users.created_at'
+            )
+            ->orderByDesc('recovery_rate')
+            ->orderByDesc('total_bets')
+            ->orderByDesc('hit_rate')
+            ->orderBy('users.created_at')
+            ->limit(3)
+            ->get()
+            ->toArray();
+    }
+
+    private function getNewArticleInfo()
+    {
+        return Article::select(
+            'articles.Title as title',
+            'articles.TopImageURL as header_image',
+            DB::raw('COUNT(likes.LikeID) as likes'),
+            'articles.Price as price',
+            'articles.PublishedAt as creation_date',
+            DB::raw("COALESCE(users.IconImageURL, 'user_images/icon_default') as user_icon"),
+            'users.name as user_name'
+        )
+            ->leftJoin('users', 'articles.UserID', '=', 'users.UserID')
+            ->leftJoin('likes', 'articles.ArticleID', '=', 'likes.ArticleID')
+            ->groupBy('articles.ArticleID', 'users.UserID')
+            ->orderByDesc('articles.PublishedAt')
+            ->limit(8)
+            ->get()
+            ->toArray();
+    }
+
+    private function getRecentRaceInfo()
+    {
+        return Article::select(
+            'races.RaceDateTime as race_date',
+            'articles.Title as title',
+            DB::raw('COUNT(likes.LikeID) as likes'),
+            'articles.Price as price',
+            'articles.PublishedAt as creation_date',
+            DB::raw("COALESCE(users.IconImageURL, 'user_images/icon_default') as user_icon"),
+            'users.name as user_name',
+            'articles.TopImageURL as header_image'
+        )
+            ->leftJoin('races', 'articles.RaceID', '=', 'races.RaceID')
+            ->leftJoin('users', 'articles.UserID', '=', 'users.UserID')
+            ->leftJoin('likes', 'articles.ArticleID', '=', 'likes.ArticleID')
+            ->whereNotNull('races.RaceDateTime')
+            ->groupBy(
+                'articles.ArticleID',
+                'races.RaceDateTime',
+                'articles.Title',
+                'articles.Price',
+                'articles.PublishedAt',
+                'users.IconImageURL',
+                'users.name',
+                'articles.TopImageURL'
+            )
+            ->orderByDesc('races.RaceDateTime')
+            ->orderByDesc('articles.PublishedAt')
+            ->limit(4)
+            ->get()
+            ->toArray();
+    }
+}
+
+```
+
+## File PostManagementController.php
+```
+<?php
+
+namespace App\Http\Controllers;
+
+use Illuminate\Http\Request;
+
+class PostManagementController extends Controller
+{
+    //
+}
+
+```
+
+## File PostController.php
+```
+<?php
+
+namespace App\Http\Controllers;
+
+use Illuminate\Http\Request;
+use App\Models\Article;
+
+class PostController extends Controller
+{
+    public function step01()
+    {
+        return view('post01');
+    }
+
+    public function step02(Request $request)
+    {
+        $request->session()->put('step01_data', $request->all());
+        return view('post02');
+    }
+
+    public function step03(Request $request)
+    {
+        $request->session()->put('step02_data', $request->all());
+        return view('post03');
+    }
+
+    public function store(Request $request)
+    {
+        $request->session()->put('step03_data', $request->all());
+
+        // セッションから全てのデータを取得
+        $data = array_merge(
+            $request->session()->get('step01_data', []),
+            $request->session()->get('step02_data', []),
+            $request->session()->get('step03_data', [])
+        );
+
+        dd($data);
+
+        // データベースに保存
+        Article::create($data);
+
+        // セッションデータをクリア
+        $request->session()->forget(['step01_data', 'step02_data', 'step03_data']);
+
+        return redirect()->route('post.complete');
+    }
+
+    public function complete()
+    {
+        return view('post04');
+    }
+}
+
+```
+
+## File Controller.php
+```
+<?php
+
+namespace App\Http\Controllers;
+
+abstract class Controller
+{
+    //
+}
+
+```
+
+## File ProfileController.php
+```
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Http\Requests\ProfileUpdateRequest;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Redirect;
+use Illuminate\View\View;
+
+class ProfileController extends Controller
+{
+    /**
+     * Display the user's profile form.
+     */
+    public function edit(Request $request): View
+    {
+        return view('profile.edit', [
+            'user' => $request->user(),
+        ]);
+    }
+
+    /**
+     * Update the user's profile information.
+     */
+    public function update(ProfileUpdateRequest $request): RedirectResponse
+    {
+        $request->user()->fill($request->validated());
+
+        if ($request->user()->isDirty('email')) {
+            $request->user()->email_verified_at = null;
+        }
+
+        $request->user()->save();
+
+        return Redirect::route('profile.edit')->with('status', 'profile-updated');
+    }
+
+    /**
+     * Delete the user's account.
+     */
+    public function destroy(Request $request): RedirectResponse
+    {
+        $request->validateWithBag('userDeletion', [
+            'password' => ['required', 'current_password'],
+        ]);
+
+        $user = $request->user();
+
+        Auth::logout();
+
+        $user->delete();
+
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+
+        return Redirect::to('/');
+    }
+}
+
+```
+
+
