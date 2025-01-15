@@ -227,13 +227,13 @@ def get_directory_structure(new_folder, ignore_patterns):
     return dir_structure
 
 
-def format_directory_structure(dir_structure):
+def format_directory_structure(dir_structure, new_folder):
     """ディレクトリ構造を文字列に整形する関数"""
     output = ""
     for i, dir_info in enumerate(dir_structure):
         indent = " " * 4 * dir_info["depth"]
         if i == 0:  # 最初のディレクトリの場合
-            output += "/{}/\n".format(dir_info["dirname"])
+            output += "{}/\n".format(new_folder.rstrip(os.sep))  # フルパスを表示
         else:
             output += "{}{}/\n".format(indent, dir_info["dirname"])
         for filename in dir_info["files"]:
@@ -274,7 +274,7 @@ def list_directory_structure(
                     ]
 
         dir_structure = get_directory_structure(new_folder, ignore_patterns)
-        output = format_directory_structure(dir_structure)
+        output = format_directory_structure(dir_structure, new_folder)
         return output
 
     except Exception as e:
