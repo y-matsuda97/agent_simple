@@ -6,7 +6,7 @@ import sys
 from prompt_forest import prompt_templates, prompts, additional_code_info
 
 
-def replace_top_folder(path, old_folder="src", new_folder="/app"):
+def replace_top_folder(path, old_folder="src", new_folder="/var/www"):
     """Replace the top-level folder in a path."""
     is_absolute = os.path.isabs(path)
     parts = path.strip(os.sep).split(os.sep)
@@ -155,7 +155,7 @@ def generate_prompt(prompt_template, input_values):
     return formatted_prompt
 
 
-def create_input_prompt(folder_mapping=("src", "/app"), include_ignore=False):
+def create_input_prompt(folder_mapping=("src", "/var/www"), include_ignore=False):
     """プロンプトファイルから入力を生成する関数"""
     prompts = {
         "1": ("review_prompt", "コードレビュー"),
@@ -230,9 +230,12 @@ def get_directory_structure(new_folder, ignore_patterns):
 def format_directory_structure(dir_structure):
     """ディレクトリ構造を文字列に整形する関数"""
     output = ""
-    for dir_info in dir_structure:
+    for i, dir_info in enumerate(dir_structure):
         indent = " " * 4 * dir_info["depth"]
-        output += "{}{}/\n".format(indent, dir_info["dirname"])
+        if i == 0:  # 最初のディレクトリの場合
+            output += "/{}/\n".format(dir_info["dirname"])
+        else:
+            output += "{}{}/\n".format(indent, dir_info["dirname"])
         for filename in dir_info["files"]:
             sub_indent = " " * 4 * (dir_info["depth"] + 1)
             output += "{}{}\n".format(sub_indent, filename)
@@ -240,7 +243,7 @@ def format_directory_structure(dir_structure):
 
 
 def list_directory_structure(
-    work_directory: str, folder_mapping=("src", "/app"), include_ignore=False
+    work_directory: str, folder_mapping=("src", "/var/www"), include_ignore=False
 ) -> str:
     """ディレクトリ構造をツリー形式で出力（.ignoreに準拠)"""
     old_folder, new_folder = folder_mapping
@@ -293,7 +296,7 @@ def get_files_from_spec(file_spec):
     return files
 
 
-def read_code_as_markdown(file_list: list, folder_mapping=("src", "/app")):
+def read_code_as_markdown(file_list: list, folder_mapping=("src", "/var/www")):
     """コードをMarkdown形式で読み込む関数"""
     old_folder, new_folder = folder_mapping
     markdown_content = ""
@@ -391,7 +394,7 @@ if __name__ == "__main__":
 #
 # 【手順】
 # 1. コマンドラインから本スクリプトを実行します。
-#    例）python main.py --old_folder src --new_folder ../app
+#    例）python main.py --old_folder src --new_folder ../var/www
 #      - --old_folder で変換前のトップフォルダ名を指定（デフォルトは"src"）。
 #      - --new_folder で変換後のトップフォルダ名を相対パスで指定（デフォルトは本スクリプトの１つ上のディレクトリ）。
 #      - --include_ignore フラグを付けると.gitignoreや.dirignoreのパターンに従い、表示／取得から除外されます。
