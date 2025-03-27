@@ -4,6 +4,7 @@ import glob
 import os
 import re
 import sys
+import warnings
 
 from prompt_forest import prompt_templates
 
@@ -16,7 +17,7 @@ def replace_top_folder(path, old_folder="src", new_folder="/var/www"):
         parts[0] = new_folder
     adjusted_path = os.sep.join(parts)
     if is_absolute:
-        adjusted_path = os.sep + adjusted_path
+        adjusted_path = os.sep + adjusted_path.lstrip(os.sep)
     return adjusted_path
 
 
@@ -56,6 +57,64 @@ def get_required_variables(prompt_template):
     return variables
 
 
+def _decode_with_warning(byte_data: bytes) -> str:
+    """
+    bytes を UTF-8 でデコードする。strict デコードが失敗した場合は ignore で再デコードし、
+    ユーザーに characters が削除された旨を警告する。
+    """
+    try:
+        return byte_data.decode("utf-8", errors="strict")
+    except UnicodeDecodeError:
+        warnings.warn("Some characters were removed due to decode errors.", UserWarning)
+        return byte_data.decode("utf-8", errors="ignore")
+
+
+def sanitize_string(s):
+    """
+    文字列(またはバイト列)からデコードエラーを引き起こす部分を削除し、
+    その際は警告を表示する関数。
+    """
+    if isinstance(s, bytes):
+        return _decode_with_warning(s)
+    try:
+        s.encode("utf-8", errors="strict")
+        return s
+    except UnicodeEncodeError:
+        warnings.warn(
+            "Some characters in string were removed due to encode errors.", UserWarning
+        )
+        return s.encode("utf-8", errors="ignore").decode("utf-8", errors="ignore")
+
+
+def sanitize_input(prompt=""):
+    """
+    ユーザーへの入力プロンプトを表示し、1行入力を受け取り、
+    デコードエラー部分を削除（警告付き）して返す関数。
+    """
+    print(prompt, end="", flush=True)
+    line = sys.stdin.buffer.readline()
+    if not line:
+        return ""
+    return _decode_with_warning(line).rstrip("\n")
+
+
+def read_lines():
+    """
+    複数行入力を受け取り、デコードエラー部分を削除（警告付き）して返す関数。
+    Ctrl+C(KeyboardInterrupt) で抜ける。
+    """
+    lines = []
+    try:
+        for line in sys.stdin.buffer:
+            if not line:
+                break
+            line_decoded = _decode_with_warning(line).rstrip("\n")
+            lines.append(line_decoded)
+    except KeyboardInterrupt:
+        pass
+    return lines
+
+
 def get_input_for_variable(
     var_name, folder_mapping, include_ignore=False, prompt_name=None
 ):
@@ -71,7 +130,7 @@ def get_input_for_variable(
         # ユーザーからの入力受付
         file_specs = []
         while True:
-            line = input().strip()
+            line = sanitize_input().strip()
             if not line:  # 空行で終了
                 break
             file_specs.extend(line.split())
@@ -87,7 +146,9 @@ def get_input_for_variable(
             elif contains_at:
                 file_path_option = "3"
                 # '@'を削除
-                file_specs = [spec for spec in file_specs if "@" != spec]
+                file_specs = [
+                    spec.replace("@", "") for spec in file_specs if "@" != spec
+                ]
             elif contains_bang:
                 file_path_option = "2"
                 # '!'を削除
@@ -108,16 +169,13 @@ def get_input_for_variable(
             return "", file_path_option
     elif var_name in ["input", "error"]:
         print(f"{var_name}を入力してください。Ctrl+Dで入力終了:")
-        lines = []
-        try:
-            for line in sys.stdin:
-                lines.append(line.rstrip())
-        except KeyboardInterrupt:
-            pass
+        lines = read_lines()
         return "\n".join(lines) + "\n"
     elif var_name == "directory_structure":
         include_dir = (
-            input("ディレクトリ構造を追加しますか？ y(default)/n/specific path: ")
+            sanitize_input(
+                "ディレクトリ構造を追加しますか？ y(default)/n/specific path: "
+            )
             or "y"
         )
         if include_dir.lower() == "y":
@@ -173,6 +231,7 @@ def create_input_prompt(folder_mapping=("src", "/var/www"), include_ignore=False
             input_values[var] = get_input_for_variable(
                 var, folder_mapping, include_ignore, prompt_name
             )
+            input_values[var] = sanitize_string(input_values[var])
     # file_path_optionに応じてプロンプトを設定
     if file_path_option == "1":
         conditional_file_path_request_prompt_text = prompt_templates[
@@ -283,7 +342,7 @@ def list_directory_structure(
                         for line in f.readlines()
                         if line.strip() and not line.startswith("#")
                     ]
-        ignore_patterns = [".git/", "agent_simple/"] + ignore_patterns
+            ignore_patterns = [".git/", "agent_simple/"] + ignore_patterns
         dir_structure = get_directory_structure(new_folder, ignore_patterns)
         output = format_directory_structure(dir_structure, new_folder)
         return output
@@ -377,36 +436,31 @@ if __name__ == "__main__":
         include_ignore=args.include_ignore,
     )
     with open(
-        os.path.join(args.new_folder, "agent_simple/.aa_prompt.txt"),
+        os.path.join(args.new_folder, "agent_simple/.aa_prompt.md"),
         "w",
         encoding="utf-8",
         errors="ignore",
     ) as f:
         f.write(result)
-    print("\nプロンプトが.aa_prompt.txtに保存されました。")
-    # except Exception as e:
-    #     print(f"Error: {e}")
+    print("\nプロンプmdに保存されました。")
 
 # --------------------------------------------------------------------------------------------------
 # 使い方（Usage）
 # 【概要】
 # このスクリプトは対話形式で「コードレビュー・エラー解析・質問」などのプロンプトテンプレートを選び、
-# 必要な変数（コードやエラー文など）を埋め込んだテキストファイル（.aa_prompt.txt）を出力するためのものです。
-
+# 必要な変数（コードやエラー文など）を埋め込んだテキストファイmd）を出力するためのものです。
 # 【手順】
 # 1. コマンドラインから本スクリプトを実行します。
 #    例）python agent.py --old_folder src --new_folder ../var/www
 #      - --old_folder で変換前のトップフォルダ名を指定（デフォルトは"src"）。
 #      - --new_folder で変換後のトップフォルダ名を相対パスで指定（デフォルトは本スクリプトの１つ上のディレクトリ）。
 #      - --include_ignore フラグを付けると.gitignoreや.dirignoreのパターンに従い、表示／取得から除外されます。
-
 # 2. プロンプトの番号を入力（1〜5）して、利用したいテンプレートを選択します。
 #    - 1: コードレビュー
 #    - 2: コード修正
 #    - 3: エラー解析
 #    - 4: コードへの質問
 #    - 5: コードのみの提示
-
 # 3. 選んだテンプレートに応じて必要な変数（{code}, {error}, {input}, {directory_structure}など）を対話形式で入力します。
 #    - ファイルパスの要求方式を選択（1から3の間で選択）。
 #      1. 必要な場合のみファイルパスを要求
@@ -416,18 +470,14 @@ if __name__ == "__main__":
 #      ファイル名は空白または改行で区切って入力し、空行で入力終了です。
 #    - {error} や {input} では複数行を入力したい場合は、Ctrl+Dで入力終了します。
 #    - {directory_structure} ではディレクトリ構造を出力するかどうか、もしくは特定パスを指定するか選択します。
-
-# 4. 入力が完了すると、最終的に生成されたプロンプト文字列が"agent_simple/.aa_prompt.txt"に書き込まれます。
-
+# 4. 入力が完了すると、最終的に生成されたプロンプト文字列が"agent_simplmd"に書き込まれます。
 # 5. もし「ファイルが見つからない」旨が表示された場合、指定パスやファイル名が正しいかご確認ください。
 #    特に複数ファイルを指定する際はスペースまたは改行で区切って入力し、相対パス指定が正しいか注意してください。
-
 # 【コマンド実行例】
 #   python agent.py --old_folder src --new_folder ../my_app --include_ignore
 #  上記の例では、 src → ../my_app ディレクトリに置換し、
 #  .gitignore と .dirignore に基づく無視リストを考慮してディレクトリ構造を確認します。
-
 # 【出力】
-#  ・対話形式で入力・処理した結果が、"--new_folder" で指定した場所の "agent_simple/.aa_prompt.txt" に保存されます。
-#  ・例えば "--new_folder ../my_app" の場合は、"../my_app/agent_simple/.aa_prompt.txt" に出力されます。
+#  ・対話形式で入力・処理した結果が、"--new_folder" で指定した場所の "agent_simplmd" に保存されます。
+#  ・例えば "--new_folder ../my_app" の場合は、"../my_app/agent_simplmd" に出力されます。
 # --------------------------------------------------------------------------------------------------
