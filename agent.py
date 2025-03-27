@@ -168,7 +168,7 @@ def get_input_for_variable(
             file_path_option = "1"
             return "", file_path_option
     elif var_name in ["input", "error"]:
-        print(f"{var_name}を入力してください。Ctrl+Dで入力終了:")
+        print(f"{var_name}を入力してください。Ctrl+Cで入力終了:")
         lines = read_lines()
         return "\n".join(lines) + "\n"
     elif var_name == "directory_structure":
@@ -231,7 +231,7 @@ def create_input_prompt(folder_mapping=("src", "/var/www"), include_ignore=False
             input_values[var] = get_input_for_variable(
                 var, folder_mapping, include_ignore, prompt_name
             )
-            input_values[var] = sanitize_string(input_values[var])
+        input_values[var] = sanitize_string(input_values[var])
     # file_path_optionに応じてプロンプトを設定
     if file_path_option == "1":
         conditional_file_path_request_prompt_text = prompt_templates[
@@ -342,7 +342,7 @@ def list_directory_structure(
                         for line in f.readlines()
                         if line.strip() and not line.startswith("#")
                     ]
-            ignore_patterns = [".git/", "agent_simple/"] + ignore_patterns
+        ignore_patterns = [".git/", "agent_simple/"] + ignore_patterns
         dir_structure = get_directory_structure(new_folder, ignore_patterns)
         output = format_directory_structure(dir_structure, new_folder)
         return output
@@ -442,42 +442,53 @@ if __name__ == "__main__":
         errors="ignore",
     ) as f:
         f.write(result)
-    print("\nプロンプmdに保存されました。")
+    print(
+        "\nプロンプトが {}/agent_simple/.aa_prompt.md に保存されました。".format(
+            args.new_folder
+        )
+    )
 
 # --------------------------------------------------------------------------------------------------
 # 使い方（Usage）
 # 【概要】
 # このスクリプトは対話形式で「コードレビュー・エラー解析・質問」などのプロンプトテンプレートを選び、
-# 必要な変数（コードやエラー文など）を埋め込んだテキストファイmd）を出力するためのものです。
+# 必要な変数（コードやエラー文など）を埋め込んだテキストファイル（.md）を出力するためのものです。
+
 # 【手順】
 # 1. コマンドラインから本スクリプトを実行します。
-#    例）python agent.py --old_folder src --new_folder ../var/www
+#    例）python agent.py --old_folder src --new_folder /var/www
 #      - --old_folder で変換前のトップフォルダ名を指定（デフォルトは"src"）。
-#      - --new_folder で変換後のトップフォルダ名を相対パスで指定（デフォルトは本スクリプトの１つ上のディレクトリ）。
+#      - --new_folder で変換後のトップフォルダ名を**絶対パス**で指定（デフォルトは本スクリプトの１つ上のディレクトリ）。
 #      - --include_ignore フラグを付けると.gitignoreや.dirignoreのパターンに従い、表示／取得から除外されます。
+
 # 2. プロンプトの番号を入力（1〜5）して、利用したいテンプレートを選択します。
 #    - 1: コードレビュー
-#    - 2: コード修正
+#    - 2: コード修正・作成
 #    - 3: エラー解析
-#    - 4: コードへの質問
+#    - 4: コードについての質問
 #    - 5: コードのみの提示
+
 # 3. 選んだテンプレートに応じて必要な変数（{code}, {error}, {input}, {directory_structure}など）を対話形式で入力します。
-#    - ファイルパスの要求方式を選択（1から3の間で選択）。
-#      1. 必要な場合のみファイルパスを要求
-#      2. 必ずファイルパスを提供するようにする
-#      3. 与えられたコードのみで考えさせる（ファイルパスを受け付けない）
-#    - {code} 入力の際は、読み込みたいファイルやフォルダを相対パスで指定してください。
+#    - {code} 入力の際は、読み込みたいファイルやフォルダを**相対パス**で指定してください。
 #      ファイル名は空白または改行で区切って入力し、空行で入力終了です。
-#    - {error} や {input} では複数行を入力したい場合は、Ctrl+Dで入力終了します。
+#      注：ファイル名に **`@`** を付けると「与えられたコードのみで考えさせる（ファイルパスを受け付けない）」、
+#          **`!`** を付けると「必ずファイルパスを提供するようにする」オプションになります。
+#    - {error} や {input} では複数行を入力したい場合は、**Ctrl+C（または Ctrl+D）**で入力終了します。
 #    - {directory_structure} ではディレクトリ構造を出力するかどうか、もしくは特定パスを指定するか選択します。
-# 4. 入力が完了すると、最終的に生成されたプロンプト文字列が"agent_simplmd"に書き込まれます。
+
+# 4. 入力が完了すると、最終的に生成されたプロンプト文字列が"`{new_folder}/agent_simple/.aa_prompt.md`"に書き込まれます。
+#    例）"--new_folder /var/www" の場合、"`/var/www/agent_simple/.aa_prompt.md`" に出力されます。
+
 # 5. もし「ファイルが見つからない」旨が表示された場合、指定パスやファイル名が正しいかご確認ください。
 #    特に複数ファイルを指定する際はスペースまたは改行で区切って入力し、相対パス指定が正しいか注意してください。
+
 # 【コマンド実行例】
-#   python agent.py --old_folder src --new_folder ../my_app --include_ignore
-#  上記の例では、 src → ../my_app ディレクトリに置換し、
-#  .gitignore と .dirignore に基づく無視リストを考慮してディレクトリ構造を確認します。
+#  python agent.py --old_folder src --new_folder /var/www --include_ignore
+
+# 上記の例では、 src → /var/www ディレクトリに置換し、
+# .gitignore と .dirignore に基づく無視リストを考慮してディレクトリ構造を確認します。
+
 # 【出力】
-#  ・対話形式で入力・処理した結果が、"--new_folder" で指定した場所の "agent_simplmd" に保存されます。
-#  ・例えば "--new_folder ../my_app" の場合は、"../my_app/agent_simplmd" に出力されます。
+#  ・対話形式で入力・処理した結果が、"`--new_folder`" で指定した場所の "`agent_simple/.aa_prompt.md`" に保存されます。
+#    例）"--new_folder /var/www" の場合、"`/var/www/agent_simple/.aa_prompt.md`" に出力されます。
 # --------------------------------------------------------------------------------------------------
