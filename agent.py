@@ -198,6 +198,9 @@ def get_input_for_variable(
 def generate_prompt(prompt_template, input_values):
     """プロンプトテンプレートにユーザ入力を埋め込む関数"""
     formatted_prompt = prompt_template
+    if "code" in input_values and not input_values["code"]:
+        formatted_prompt = formatted_prompt.replace("\n# 該当コード\n{code}", "")
+
     for key, value in input_values.items():
         # 値が空文字列でも置換を行う
         formatted_prompt = formatted_prompt.replace(f"{{{key}}}", value)
@@ -361,7 +364,14 @@ def get_files_from_spec(file_spec):
     elif os.path.isfile(file_spec):
         files = [file_spec]
     else:
-        files = glob.glob(f"{file_spec}*")
+        exact_match = glob.glob(file_spec)
+        if exact_match:
+            files = exact_match
+        else:
+            if '*' in file_spec or '?' in file_spec:
+                files = glob.glob(file_spec)
+            else:
+                files = []
     return files
 
 
