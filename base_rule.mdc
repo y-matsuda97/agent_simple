@@ -3,6 +3,8 @@ description:
 globs:
 alwaysApply: true
 ---
+This project is **Phase 1** now.
+
 # Critical Rules (Must Be Followed)
 ## Do NOT View Raw Data (Strict Policy)
 ### You MUST NOT:
@@ -159,12 +161,12 @@ project/
 * Always run code in debug mode and execute tests before deployment.
 
 # Development Phase Guidelines
-1. Prototyping Phase (Initial Stage)
+1. Prototyping Phase (Phase 1)
 * Prioritize **getting something working** over writing perfect code or configurations.
 * Call auxiliary scripts directly from `main.py` for early integration.
 * Use `logs/changelog.md` as a development log to track daily progress, decisions, and experiments.
 
-2. Refinement Phase (Stabilization)
+2. Refinement Phase (Phase 2)
 * Once the prototype works reliably, gradually split configuration into subfolders (e.g., `conf/model/`, `conf/data/`).
 * Introduce proper logging, error handling, and apply clear modularization and interface design.
 * Apply coding standards and best practices more strictly as the codebase matures.
