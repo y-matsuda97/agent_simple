@@ -66,6 +66,8 @@ project/
 ├── logs/
 │   ├── changelog.md
 │   └── log.log
+├── notebook/
+│   ├── ...
 ├── output/
 │   ├── ...
 ├── outputs/
