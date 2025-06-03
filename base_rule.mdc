@@ -186,13 +186,6 @@ project/
 * **Always run code in debug mode and execute tests in the `tests/` directory after developing any changes to ensure code quality and prevent regressions.**
 
 # Shared Files for New Projects
-To accelerate onboarding and ensure consistency, reuse the following common files when initializing a new project:
-See `../shared_assets.md` of root directory for:
-- .devcontainer/devcontainer.json
-- .devcontainer/Dockerfile
-- .vscode/launch.json
-- conf/config.yaml
-- .gitignore
-- docker-compose.yml
-- src/utils.py
-If you modify any of the shared files (e.g., Dockerfile, logger utility, etc.), you must also update `shared_assets.md` accordingly.
+
+To accelerate onboarding and ensure consistency, reuse common files from the `../agent_simple/python_project` directory (located in the root directory) when initializing a new project.
+If you modify any of the shared files (e.g., Dockerfile, logger utility, etc.), you must also update the corresponding file in `../agent_simple/python_project`.
