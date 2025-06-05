@@ -1,0 +1,20 @@
+# Hydra Configuration for Python Project
+
+defaults:
+  - data: default
+  - model: listmle
+  - _self_
+
+# Data splitting
+data_split:
+  test_size: 0.05
+  val_size: 0.15
+
+# Training parameters
+training:
+  seed: 42
+  device: "cuda"
+  ndcg_k: 3
+
+# Debug mode
+debug: true

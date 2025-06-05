@@ -13,7 +13,7 @@ This project is **Phase 1** now.
 - Use or inspect **any string-based content** (e.g., text, IDs, emails, file names, categories)
 ### You MAY:
 - Use values explicitly listed in `conf/`
-- Inspect **aggregated numerical summaries**, such as: Number of rows/columns, Statistics (e.g. min, max, standard deviation)
+- Inspect **aggregated numerical summaries**: Number of rows/columns, Statistics (maximum value, minimum value, number of NA values ONLY. When viewing these statistics, you MUST NOT view column names.)
 Violations of this rule will result in immediate code rejection and may trigger data compliance audits.
 
 # Role Definition
