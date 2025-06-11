@@ -1,0 +1,5 @@
+# base-requirements.txt
+
+numpy
+pandas
+jupyterlab
