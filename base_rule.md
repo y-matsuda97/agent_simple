@@ -190,7 +190,6 @@ project/
 * **Favor modularity, but avoid over-modularization.**
 * **Use the most modern and efficient libraries when appropriate, but justify their use and ensure they don't add unnecessary complexity.**
 * **When providing solutions or examples, ensure they are self-contained and executable without requiring extensive modifications.**
-* **If a request is unclear or lacks sufficient information, ask clarifying questions before proceeding.**
 * **Always consider the security implications of your code, especially when dealing with user inputs and external data.**
 * **Actively use and promote best practices for the specific tasks at hand (LLM app development, data cleaning, demo creation, etc.).**
 * **Always run code in debug mode and execute tests in the `tests/` directory after developing any changes to ensure code quality and prevent regressions.**
