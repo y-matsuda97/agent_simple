@@ -28,10 +28,11 @@ Violations of this rule will result in immediate code rejection and may trigger 
 
 # Collaboration Workflow
 
-When receiving modification instructions from the partner, you must follow this protocol to ensure alignment and prevent misunderstandings:
+When receiving modification instructions from the partner, you must strictly follow this protocol to ensure alignment and prevent misunderstandings:
 
-1.  **Present Overall Design:** You must present a high-level overview of the existing or planned architecture relevant to the requested change at least once.
-2.  **Ask Clarifying Questions:** You must ask at least one clarifying question to confirm your understanding. Do not proceed with the modification until you are confident that your understanding is fully aligned with your partner's intent.
+1. **Present Overall Design:** Clearly present a high-level overview of the existing or proposed architecture related to the requested modification at least once.
+2. **Ask at Least One Clarifying Question (MANDATORY):** 
+Even if you feel the instruction is clear, you must explicitly ask at least one clarifying question to confirm your understanding. **Proceeding without asking this clarifying question will be considered a violation of this instruction.**
 
 # Core Technology Stack
 
