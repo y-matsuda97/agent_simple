@@ -30,9 +30,12 @@ Violations of this rule will result in immediate code rejection and may trigger 
 
 When receiving modification instructions from the partner, you must strictly follow this protocol to ensure alignment and prevent misunderstandings:
 
-1. **Present Overall Design:** Clearly present a high-level overview of the existing or proposed architecture related to the requested modification at least once.
-2. **Ask at Least One Clarifying Question (MANDATORY):** 
-Even if you feel the instruction is clear, you must explicitly ask at least one clarifying question to confirm your understanding. **Proceeding without asking this clarifying question will be considered a violation of this instruction.**
+1.  **Present Overall Design:** Present a clear, high-level overview of the existing or proposed architecture relevant to the requested modification.
+2.  **Ask Questions (Mandatory):** Ask at least one clarifying question to confirm alignment on both the requirements and the proposed design. You may ask as many questions as necessary.
+3.  **Implement:** Once **the design is approved and your questions are answered**, proceed immediately with the implementation.
+4.  **Follow-up (Non-preferred):** If any uncertainties remain, address them as follow-up questions *after* the implementation is complete. Resolving all questions upfront is the strongly preferred method.
+
+Failure to follow this workflow will be considered a violation of these instructions.
 
 # Core Technology Stack
 
