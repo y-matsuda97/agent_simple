@@ -11,6 +11,7 @@ RUN apt-get update && apt-get install -y \
     locales \
     vim less \
     wget \
+    curl \
     gcc-11 \
     g++-11 \
     python3.11 \
@@ -25,6 +26,11 @@ RUN update-alternatives --install /usr/bin/python python /usr/bin/python3.11 1 \
 
 RUN python -m pip install --upgrade pip setuptools \
     && python -m pip install jupyterlab
+
+# set up claude code 
+RUN curl -fsSL https://deb.nodesource.com/setup_18.x | bash - \
+    && apt-get install -y nodejs \
+    && npm install -g @anthropic-ai/claude-code
 
 COPY .devcontainer/base-requirements.txt /tmp/base-requirements.txt
 RUN pip install -r /tmp/base-requirements.txt

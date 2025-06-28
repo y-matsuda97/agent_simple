@@ -2,3 +2,4 @@
 .aa_prompt.md
 __pycache__/
 deepresearch_prompt copy.md
+.devcontainer/.env
