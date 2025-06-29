@@ -3,7 +3,7 @@ description:
 globs:
 alwaysApply: true
 ---
-This project is currently in **Phase 1**.
+This project is currently in **Phase 2**.
 
 # Role Definition
 
@@ -44,45 +44,51 @@ Even if you feel the instruction is clear, you must explicitly ask at least one 
 
 # Project & Config Layout (Laravel Standard)
 
-```
-project/
-├── app/
-│   ├── Console/
-│   ├── Exceptions/
-│   ├── Http/
-│   │   ├── Controllers/
-│   │   └── Middleware/
-│   ├── Models/
-│   ├── Providers/
-│   └── ...
-├── bootstrap/
-├── config/
-├── database/
-│   ├── factories/
-│   ├── migrations/
-│   └── seeders/
-├── public/
-│   └── index.php
-├── resources/
-│   ├── css/
-│   ├── js/
-│   └── views/
-├── routes/
-│   ├── api.php
-│   └── web.php
-├── storage/
+horse_app/
+├── docker/
 │   ├── app/
-│   ├── framework/
-│   └── logs/
-├── tests/
-│   ├── Feature/
-│   └── Unit/
-├── .env
-├── .gitignore
-├── artisan
-├── composer.json
-└── README.md
-```
+│   ├── db/
+│   └── web/
+├── src/
+│   ├── app/
+│   │   ├── Console/
+│   │   ├── Exceptions/
+│   │   ├── Http/
+│   │   │   ├── Controllers/
+│   │   │   └── Middleware/
+│   │   ├── Models/
+│   │   ├── Providers/
+│   │   └── ...
+│   ├── bootstrap/
+│   ├── config/
+│   ├── database/
+│   │   ├── factories/
+│   │   ├── migrations/
+│   │   └── seeders/
+│   ├── public/
+│   │   └── index.php
+│   ├── resources/
+│   │   ├── css/
+│   │   ├── js/
+│   │   └── views/
+│   ├── routes/
+│   │   ├── api.php
+│   │   └── web.php
+│   ├── storage/
+│   │   ├── app/
+│   │   ├── framework/
+│   │   └── logs/
+│   ├── tests/
+│   │   ├── Feature/
+│   │   └── Unit/
+│   ├── .env
+│   ├── .gitignore
+│   ├── artisan
+│   ├── composer.json
+│   └── README.md
+├── 設計書/
+├── docker-compose.yml
+└── start.sh
 
 # Coding Standards
 
@@ -108,6 +114,14 @@ project/
   - Only add comments for complex logic or algorithms that are not immediately obvious.
   - A method's purpose should be clear from its name and docblock.
 
+### Naming Conventions
+
+* **File Names:** Use kebab-case (e.g., `my-class-file.php`).
+* **Class and Enum Names:** Use PascalCase (e.g., `MyClass`).
+* **Method Names:** Use camelCase (e.g., `myMethod`).
+* **Variable and Property Names:** Use snake_case (e.g., `my_variable`).
+* **Constants and Enum Case Names:** Use SCREAMING_SNAKE_CASE (e.g., `MY_CONSTANT`).
+
 # Laravel Development Practices
 
 * **Eloquent Best Practices:** Avoid N+1 query problems by using eager loading (`with()`). Use accessors, mutators, and model observers where appropriate. Keep business logic out of models.
@@ -118,6 +132,9 @@ project/
 * **Queues and Jobs:** Offload long-running tasks to background jobs to improve application response times.
 * **Caching:** Use Laravel's cache facade to store frequently accessed, computationally expensive data.
 * **Blade Templating:** Keep logic out of Blade templates. Use View Composers or dedicated Presenter classes to prepare data for views.
+* **Helper Usage:** Prefer using global helper functions over Facades for better DX, autocompletion, and type safety.
+* **ID Handling:** Use public-facing IDs (`public_id`) for all external identifiers, while internal database IDs (`id`) should remain private.
+* **Database Migrations:** Modify migration files directly instead of creating new ones for changes.
 
 # Performance & Reliability
 
@@ -127,6 +144,7 @@ project/
 * **Resource Monitoring:** Use tools like Laravel Telescope or New Relic to monitor application performance and identify bottlenecks.
 * **Memory Efficiency:** Be mindful of memory usage, especially when processing large datasets with Eloquent collections. Use chunking methods like `chunk()` or `cursor()`.
 * **Concurrency:** For high-traffic applications, configure queue workers appropriately using a process manager like Supervisor.
+* **CORS:** When this package's API is consumed by an application, ensure the application's CORS policy (configured in `config/cors.php`) allows requests from the required origins.
 
 # Laravel API Rules
 
@@ -140,15 +158,50 @@ project/
 * **Versioning:** Plan for API versioning from the start (e.g., using URL prefixes like `/api/v1/`).
 * **CORS:** Configure Cross-Origin Resource Sharing (CORS) settings in `config/cors.php`.
 
-# Docker Configuration and Usage (Laravel Sail)
+# Docker Environment
 
-* **Container Structure:** The project is configured to run within a Laravel Sail environment, which provides a Docker-based local development experience.
-* **Running the Environment:** Use `./vendor/bin/sail up` to start all containers. For interactive sessions, use `./vendor/bin/sail bash`.
-* **Artisan Commands:** Run Artisan commands within the container: `./vendor/bin/sail artisan <command>`.
-* **Port Mapping:** Sail maps the application port (default: 80) and other service ports (database, Redis, etc.).
-* **Volume Mounting:** The current directory is mounted into the container, ensuring code changes are reflected immediately.
-* **Environment Variables:** All environment-specific configurations should be in the `.env` file.
-* **Dependency Management:** When adding new Composer dependencies, run `./vendor/bin/sail composer require <package>`. For Node dependencies, use `./vendor/bin/sail npm install`. If you modify the `docker-compose.yml` or Dockerfiles published by Sail, rebuild with `./vendor/bin/sail build --no-cache`.
+* **Source Code Directory:** `src/`
+* **Containerization:** The project uses a custom Docker environment with PHP, MySQL, and Nginx services.
+* **Docker Compose Configuration:**
+  ```yaml
+  services:
+    app:
+      build:
+        context: .
+        dockerfile: ./docker/app/Dockerfile
+      volumes:
+        - ./src/:/var/www
+      ports:
+        - 5173:5173
+    web:
+      build:
+        context: .
+        dockerfile: ./docker/web/Dockerfile
+      ports:
+        - 8080:80
+      volumes:
+        - ./src/:/var/www
+      depends_on:
+        - app
+    db:
+      build:
+        context: .
+        dockerfile: ./docker/db/Dockerfile
+      ports:
+        - 3306:3306
+      environment:
+        MYSQL_DATABASE: database
+        MYSQL_USER: user
+        MYSQL_PASSWORD: password
+        MYSQL_ROOT_PASSWORD: password
+        TZ: 'Asia/Tokyo'
+      volumes:
+        - mysql-volume:/var/lib/mysql
+
+  volumes:
+    mysql-volume:
+  ```
+* **Starting the Environment:** After building the Docker containers, you can start the server by running `bash start.sh` inside the `app` container.
 
 # Code Example Requirements
 
