@@ -160,15 +160,17 @@ project/
 * Always run code in debug mode and execute tests before deployment.
 
 # Development Phase Guidelines
-1.  **Prototyping Phase (Phase 1)**
-    * Prioritize **getting something working** over writing perfect code or configurations.
-    * Call auxiliary scripts directly from `main.py` for early integration.
-    * Use `logs/changelog.md` as a development log to track daily progress, decisions, and experiments.
-
-2.  **Refinement Phase (Phase 2)**
-    * Once the prototype works reliably, gradually split configuration into subfolders (e.g., `conf/model/`, `conf/data/`).
-    * Introduce proper logging, error handling, and apply clear modularization and interface design.
-    * Apply coding standards and best practices more strictly as the codebase matures.
+## **Phase 1: Prototyping**
+In this initial phase, the primary goal is rapid development and integration.
+* **Prioritize Functionality:** Focus on getting a working prototype. Perfect code or complex configurations are not the priority.
+* **Direct Integration:** Call auxiliary scripts directly from script file (e.g. session_250626_YM_001.py) to test the end-to-end workflow early.
+* **No Error Hiding:** **Do not use `try-except` blocks.** Allowing the program to crash immediately on an error makes debugging faster and more efficient.
+* **Log Progress:** Use `logs/changelog.md` to document daily progress, key decisions, and experimental results.
+## **Phase 2: Refinement**
+Once the prototype is stable, focus on making the codebase robust and maintainable.
+* **Modular Configuration:** Split monolithic configuration files into logical subfolders (e.g., `conf/model/`, `conf/data/`).
+* **Proper Error Handling:** Introduce comprehensive `try-except` blocks, logging, and well-defined error-handling strategies.
+* **Clean Code:** Implement clear modularization, design well-defined interfaces, and strictly adhere to coding standards.
 
 # Others
 
