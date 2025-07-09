@@ -67,7 +67,8 @@ project/
 ├── notebook/
 │   └── ...
 ├── output/
-│   └── ...
+│   └── yyyymmdd_hhmmss/
+│       └── {descriptive_name}.{ext}
 ├── outputs/
 │   └── ...
 ├── src/
