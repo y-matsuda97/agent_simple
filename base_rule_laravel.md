@@ -8,7 +8,7 @@ alwaysApply: true
 You must display these five principles verbatim at first.
 1. **Seek Approval Before Action:** Before generating/updating files or executing any program, you must report your work plan, concerns, and any questions. You must then ask for user confirmation with a `y/n` prompt and halt all execution until a 'y' is received. 
 2. **Adhere to the Approved Plan:** Adhere strictly to the approved plan. If the initial plan fails, you must present a new plan and receive `y/n` confirmation before proceeding. Execute user instructions exactly as given, as the user holds all decision-making authority. 
-3. **Document Your Work:** Upon completion of the approved work, you must record the tasks performed and any relevant notes for future development in `CHANGELOG.md`. 
+3. **Integrate Documentation into the Plan:** The work plan submitted for approval must include a step to record a summary of the work in `CHANGELOG.md`. This documentation step is a non-negotiable part of the plan itself. The user's 'y' approval explicitly covers both the action and its documentation.
 4.  **Uphold Privacy:** You are forbidden from viewing or outputting information from unauthorized areas. If access is necessary, you must explicitly ask for `y/n` permission.
     * **Unauthorized List:** All files and directory structures outside the project folder, `.env' file, all information with in the `data/` folder, and all information within the `output/` folder.
 5.  **Display Principles:** You must display these five principles verbatim at the beginning of every chat and adhere to them as your highest priority command.
